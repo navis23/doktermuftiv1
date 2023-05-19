@@ -2,19 +2,19 @@
     <div>
         <!-- hero -->
         <div ref="hero" class="relative flex items-center justify-center h-screen mb-12 overflow-hidden">
-            <div class="flex flex-col justify-center items-center relative z-30 p-5 bg-black bg-opacity-50 w-full h-full">
+            <div v-show="heroLive" class="hero2 flex flex-col justify-center items-center relative z-30 p-5 bg-black bg-opacity-50 w-full h-full">
                 <!-- navbar for index / home page -->
                 <client-only>
                     <Navbar />
                 </client-only>
                 <!-- main headings -->
-                <h2 class="font-oswald text-3xl lg:text-4xl text-gray-100 font-medium tracking-wide uppercase">
+                <h2 class="hero1 font-oswald text-3xl lg:text-4xl text-gray-100 font-medium tracking-wide uppercase">
                     dokter
                 </h2>
-                <h1 class="font-oswald px-4 text-7xl sm:text-8xl lg:text-[12rem] text-gray-100 font-bold uppercase tracking-tight">
+                <h1 ref="heroBtn" class="font-oswald px-4 text-7xl sm:text-8xl lg:text-[12rem] text-gray-100 font-bold uppercase tracking-tight">
                     <span class="text-red-700">mufti</span>anam
                 </h1>
-                <h2 class="font-oswald text-lg lg:text-2xl text-gray-100 font-medium uppercase tracking-wide pt-3">
+                <h2 class="hero3 font-oswald text-lg lg:text-2xl text-gray-100 font-medium uppercase tracking-wide pt-3">
                     santri <span class="text-red-700 font-bold">mandiri</span> berbakti
                 </h2>
 
@@ -25,7 +25,7 @@
             </div>
             <!-- overlay video -->
             <video autoplay loop muted class="absolute z-10 w-auto min-w-full min-h-full max-w-none">
-                <source src="/herovid.mp4" type="video/mp4" />
+                <source src="~/assets/img/herovid.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
             
@@ -36,7 +36,7 @@
         <div ref="about" class="w-full grid grid-cols-1 gap-4 lg:grid-cols-2 px-4 lg:px-30">
             <div class="flex flex-col justify-center lg:pl-20 lg:pr-5">
                
-                <div class="flex flex-col items-center text-center">
+                <div class="note overflow-hidden flex flex-col items-center text-center">
                     <Icon name="ph:quotes-fill" class="mb-2 text-lg lg:text-2xl" />
                     <h3 class="font-oswald text-2xl lg:text-5xl">
                         Berikhtiar mengabdikan ilmu untuk masyarakat, bersilaturahmi menghimpun sahabat.
@@ -47,7 +47,7 @@
                     </p>
                 </div>
             </div>
-            <div class="">
+            <div class="box">
                 <img src="/profile01.jpg" alt="" class="w-[30rem]" loading="lazy">
             </div>
         </div>
@@ -226,10 +226,15 @@
   
   
 <script setup lang="ts">
+import gsap from 'gsap';
 
 const hero = ref()
 const about = ref()
 const stopper = ref()
+const heroBtn = ref(null)
+const heroLive = ref(false)
+
+let ctx:any;
 
 const dataTestimonies = ref()
 const dataVideos = ref()
@@ -309,7 +314,81 @@ onMounted( async () => {
     dataTestimonies.value = await testimonies.value
     dataVideos.value = await videos.value
     dataArticlesHome.value = await articlesHome.value
+    await aboutGsap()
 })
+
+// onUnmounted(() => {
+//     ctx.revert();
+// })
+
+const aboutGsap = async () => {
+    heroLive.value = true
+    // ctx = gsap.context((self) => {
+    //     const boxes = self.selector('.box');
+    //     boxes.forEach((box : any) => {
+    //     gsap.to(box, {
+    //         x: 150,
+    //         scrollTrigger: {
+    //         trigger: box,
+    //         start: 'bottom bottom',
+    //         end: 'top 20%',
+    //         scrub: true,
+    //         },
+    //     });
+    //     });
+    // }, about.value);
+
+    ctx = gsap.context(() => {
+
+        // animate hero
+        const tl = gsap.timeline()
+        tl.from('.hero2', {
+            scaleX: 0,
+            duration: 1,
+            ease: 'Power2.easeOut'
+        }).from(heroBtn.value, {
+            duration: 1,
+            x: '+300',
+            autoAlpha: 0,
+            ease: 'back.out(1.7)'
+        }).from('.hero1', {
+            autoAlpha: 0,
+            duration: 1
+        }).from('.hero3', {
+            scale: 0,
+            duration: 0.5
+        })
+
+        // animate about
+        gsap.from('.note', {
+            x: -150,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.3,
+            scrollTrigger: {
+                trigger: '.note',
+                start: 'bottom bottom',
+                end: 'top 20%',
+                // scrub: true,
+                // markers: true
+            },
+        })
+    
+        gsap.from('.box', {
+            scale: 0,
+            duration: 1,
+            stagger: 0.3,
+            scrollTrigger: {
+                trigger: '.box',
+                start: 'bottom bottom',
+                end: 'top 20%',
+                // scrub: true,
+                // markers: true
+            },
+        })
+    })
+
+}
 
 const scrollToHero = () => {
     hero.value.scrollIntoView({behavior : "smooth"})
